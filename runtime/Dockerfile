@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=debian:trixie-slim
+ARG BASE_IMAGE=debian:bookworm-slim
 FROM $BASE_IMAGE AS runtime
 
 #
@@ -15,7 +15,7 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
         wget ca-certificates supervisor \
         pulseaudio dbus-x11 xserver-xorg-video-dummy \
-        libcairo2 libxcb1 libxrandr2 libxv1 libopus0 libvpx9 libx264-164 libvo-aacenc0 librtmp1 libxcvt0 \
+        libcairo2 libxcb1 libxrandr2 libxv1 libopus0 libvpx7 libx264-164 libvo-aacenc0 librtmp1 libxcvt0 \
         #
         # needed for profile upload preStop hook
         zip curl \
