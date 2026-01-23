@@ -21,6 +21,10 @@ export const state = () => ({
   connecting: false,
   connected: false,
   locked: {} as Record<string, boolean>,
+  autoLoginAttempted: false,
+  autoLoginInProgress: false,
+  autoLoginFailed: false,
+  autoLoginTimeoutId: null as number | null,
 })
 
 export const mutations = mutationTree(state, {
@@ -53,6 +57,22 @@ export const mutations = mutationTree(state, {
       set('displayname', state.displayname)
       set('password', state.password)
     }
+  },
+
+  setAutoLoginAttempted(state, attempted: boolean) {
+    state.autoLoginAttempted = attempted
+  },
+
+  setAutoLoginInProgress(state, inProgress: boolean) {
+    state.autoLoginInProgress = inProgress
+  },
+
+  setAutoLoginFailed(state, failed: boolean) {
+    state.autoLoginFailed = failed
+  },
+
+  setAutoLoginTimeoutId(state, timeoutId: number | null) {
+    state.autoLoginTimeoutId = timeoutId
   },
 })
 
@@ -95,6 +115,42 @@ export const actions = actionTree(
     login(store, { displayname, password }: { displayname: string; password: string }) {
       accessor.setLogin({ displayname, password })
       $client.login(password, displayname)
+    },
+
+    autoLoginAttempt() {
+      if (accessor.connected || accessor.autoLoginAttempted || accessor.autoLoginInProgress) {
+        return
+      }
+
+      if (accessor.autoLoginTimeoutId !== null) {
+        clearTimeout(accessor.autoLoginTimeoutId)
+        accessor.setAutoLoginTimeoutId(null)
+      }
+
+      accessor.setAutoLoginAttempted(true)
+      accessor.setAutoLoginFailed(false)
+      accessor.setAutoLoginInProgress(true)
+
+      const shortId = Math.random().toString(36).slice(2, 7)
+      const displayname = `guest-${shortId}`
+      const password = 'test'
+
+      accessor.setLogin({ displayname, password })
+      $client.login(password, displayname)
+
+      const timeoutId = window.setTimeout(() => {
+        if (!accessor.autoLoginInProgress || accessor.connected) {
+          return
+        }
+
+        $client.cancelAutoLogin()
+        accessor.setAutoLoginInProgress(false)
+        accessor.setAutoLoginFailed(true)
+        accessor.setLogin({ displayname: '', password: '' })
+        accessor.setAutoLoginTimeoutId(null)
+      }, 5000)
+
+      accessor.setAutoLoginTimeoutId(timeoutId)
     },
 
     logout() {

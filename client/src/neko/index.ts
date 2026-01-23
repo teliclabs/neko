@@ -57,6 +57,11 @@ export class NekoClient extends BaseClient implements EventEmitter<NekoEvents> {
     this.$accessor.chat.reset()
   }
 
+  cancelAutoLogin() {
+    this.disconnect()
+    this.cleanup()
+  }
+
   login(password: string, displayname: string) {
     this.connect(this.url, password, displayname)
   }
@@ -91,6 +96,12 @@ export class NekoClient extends BaseClient implements EventEmitter<NekoEvents> {
   protected [EVENT.CONNECTED]() {
     this.$accessor.user.setMember(this.id)
     this.$accessor.setConnected(true)
+    this.$accessor.setAutoLoginInProgress(false)
+    this.$accessor.setAutoLoginFailed(false)
+    if (this.$accessor.autoLoginTimeoutId !== null) {
+      clearTimeout(this.$accessor.autoLoginTimeoutId)
+      this.$accessor.setAutoLoginTimeoutId(null)
+    }
 
     this.$vue.$notify({
       group: 'neko',
@@ -108,6 +119,15 @@ export class NekoClient extends BaseClient implements EventEmitter<NekoEvents> {
 
   protected [EVENT.DISCONNECTED](reason?: Error) {
     this.cleanup()
+    if (this.$accessor.autoLoginInProgress) {
+      this.$accessor.setAutoLoginInProgress(false)
+      this.$accessor.setAutoLoginFailed(true)
+      this.$accessor.setLogin({ displayname: '', password: '' })
+    }
+    if (this.$accessor.autoLoginTimeoutId !== null) {
+      clearTimeout(this.$accessor.autoLoginTimeoutId)
+      this.$accessor.setAutoLoginTimeoutId(null)
+    }
 
     this.$vue.$notify({
       group: 'neko',

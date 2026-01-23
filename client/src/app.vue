@@ -32,7 +32,7 @@
         </div>
       </main>
       <neko-side v-if="!videoOnly && side" />
-      <neko-connect v-if="!connected" />
+      <neko-connect v-if="!connected && !autoLoginInProgress" />
       <neko-about v-if="about" />
       <notifications
         v-if="!videoOnly"
@@ -268,6 +268,10 @@
 
     get connected() {
       return this.$accessor.connected
+    }
+
+    get autoLoginInProgress() {
+      return this.$accessor.autoLoginInProgress
     }
   }
 </script>

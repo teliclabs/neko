@@ -31,5 +31,6 @@ new Vue({
   created() {
     this.$client.init(this)
     this.$accessor.initialise()
+    this.$accessor.autoLoginAttempt()
   },
 }).$mount('#neko')
