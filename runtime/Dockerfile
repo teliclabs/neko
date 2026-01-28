@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=debian:bookworm-slim
+ARG BASE_IMAGE=ubuntu:22.04
 FROM $BASE_IMAGE AS runtime
 
 #
@@ -15,7 +15,7 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
         wget ca-certificates supervisor \
         pulseaudio dbus-x11 xserver-xorg-video-dummy \
-        libcairo2 libxcb1 libxrandr2 libxv1 libopus0 libvpx7 libx264-164 libvo-aacenc0 librtmp1 libxcvt0 \
+        libcairo2 libxcb1 libxrandr2 libxv1 libopus0 libvpx7 libx264-163 libvo-aacenc0 librtmp1 libxcvt0 \
         #
         # needed for profile upload preStop hook
         zip curl \
@@ -24,7 +24,7 @@ RUN set -eux; \
         xdotool xclip libgtk-3-0 \
         #
         # gst
-        gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+        gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
         gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
         gstreamer1.0-pulseaudio; \
     #

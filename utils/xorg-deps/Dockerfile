@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=debian:bookworm-slim
+ARG BASE_IMAGE=ubuntu:22.04
 FROM $BASE_IMAGE AS xorg-deps
 
 WORKDIR /xorg
@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN set -eux; \
     apt-get update; \
     apt-get install -y \
-        git gcc pkgconf autoconf automake libtool make xorg-dev xutils-dev \
+        git gcc pkg-config autoconf automake libtool make xorg-dev xutils-dev \
     && rm -rf /var/lib/apt/lists/*;
 
 COPY . /xorg/
